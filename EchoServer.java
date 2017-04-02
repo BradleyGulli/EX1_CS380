@@ -1,38 +1,24 @@
-
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.*;
 
+/*
+ * EchoServer class. Starts the connection, and creates a new thread for the client to
+ * interact with the server 
+ */
 public final class EchoServer {
 
     public static void main(String[] args) throws Exception {
         try (ServerSocket serverSocket = new ServerSocket(22222)) {
             while (true) {
-                try (Socket socket = serverSocket.accept()) {
-        			String address = socket.getInetAddress().getHostAddress();
-                    System.out.printf("Client connected: %s%n", address);
-                    OutputStream os = socket.getOutputStream();
-                    PrintStream out = new PrintStream(os, true, "UTF-8");
-                    out.printf("Hi %s, thanks for connecting!%n", address);
-	                    
-                    InputStream is = socket.getInputStream();
-                    InputStreamReader isr = new InputStreamReader(is, "UTF-8");
-                    BufferedReader br = new BufferedReader(isr);
-                    String inLine = br.readLine();
-                    while(inLine != null){
-                    	out.println(inLine);
-                    	inLine = br.readLine();
-                    }
-	                    
-	                    
-                    System.out.println("Client disconnected: " + address);
-                    socket.close();
+                try {
+                	//makes connection
+                	Socket socket = serverSocket.accept();
+                	//creates a new thread for the echo server
+                	EchoServerThread t = new EchoServerThread(socket);
+                	t.start();
 	
+        			} catch (Exception e){
+        				e.printStackTrace();
         			}
                 }
             }
